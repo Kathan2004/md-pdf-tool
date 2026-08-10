@@ -1,0 +1,23 @@
+{
+  "name": "md-pdf-serverless",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Serverless Markdown to PDF conversion using Netlify Functions",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step required'"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "^138.0.2",
+    "pdfkit": "^0.15.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
+    "jspdf-autotable": "^3.8.4",
+    "marked": "^14.1.2",
+    "puppeteer-core": "^24.16.2"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.38.1"
+  }
+}

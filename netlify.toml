@@ -1,0 +1,18 @@
+[build]
+  publish = "."
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[functions."md_to_pdf"]
+  node_bundler = "zisi"
+  external_node_modules = ["pdfkit", "marked", "puppeteer-core", "@sparticuz/chromium"]
+  included_files = ["node_modules/pdfkit/js/data/**"]
+
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"
