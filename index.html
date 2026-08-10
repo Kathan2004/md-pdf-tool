@@ -15,23 +15,22 @@
 
   <main class="app">
     <header class="hero">
-      <p class="eyebrow">Netlify Serverless Pipeline</p>
       <h1>Markdown to HTML Studio</h1>
-      <p class="subtitle">Write or upload markdown, preview it live, and download a fully readable HTML document.</p>
+      <p class="subtitle">Upload markdown, preview it, and download a clean readable HTML file.</p>
     </header>
 
-    <section class="panel workspace" aria-labelledby="content-heading">
+    <section class="panel workspace" aria-label="Workspace">
       <div class="toolbar">
-        <h2 id="content-heading">Workspace</h2>
         <div class="actions-inline">
-          <input id="fileInput" type="file" accept=".md,.markdown,.txt" />
+          <input id="fileInput" class="hidden-file-input" type="file" accept=".md,.markdown,.txt" />
           <button id="sampleBtn" type="button" class="ghost">Load Sample</button>
           <button id="convertBtn" type="button" class="primary">Download HTML</button>
         </div>
       </div>
 
       <div id="dropZone" class="drop-zone" role="button" tabindex="0" aria-label="Drop markdown file here">
-        Drag and drop a Markdown file here
+        <p class="drop-title">Drag and drop a Markdown file here</p>
+        <p class="drop-subtitle">Or click this area to choose a file</p>
       </div>
 
       <div class="meta-row">
