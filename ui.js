@@ -9,6 +9,7 @@ const includeTocInput = document.getElementById("includeToc");
 const tocDepthInput = document.getElementById("tocDepth");
 const previewCanvas = document.getElementById("previewCanvas");
 const previewPanel = document.getElementById("previewPanel");
+const splitView = document.querySelector(".split-view");
 const dropZone = document.getElementById("dropZone");
 const FUNCTION_ENDPOINT = "/.netlify/functions/md_to_pdf";
 
@@ -244,10 +245,12 @@ function renderPreview() {
   if (!markdown.trim()) {
     previewCanvas.innerHTML = "";
     previewPanel.classList.add("is-hidden");
+    splitView.classList.add("editor-wide");
     return;
   }
 
   previewPanel.classList.remove("is-hidden");
+  splitView.classList.remove("editor-wide");
   previewCanvas.innerHTML = buildDocumentHtml(markdown, includeToc, tocDepth);
 }
 

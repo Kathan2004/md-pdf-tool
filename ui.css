@@ -127,6 +127,10 @@ body {
   gap: 12px;
 }
 
+.split-view.editor-wide {
+  grid-template-columns: 1fr;
+}
+
 .editor-col,
 .preview-col {
   min-width: 0;
@@ -164,11 +168,15 @@ select:focus,
 }
 
 textarea {
-  min-height: 460px;
+  min-height: 330px;
   resize: vertical;
   font-family: "IBM Plex Mono", Consolas, monospace;
   font-size: 0.92rem;
   line-height: 1.5;
+}
+
+.split-view.editor-wide textarea {
+  min-height: 300px;
 }
 
 .actions-inline {
