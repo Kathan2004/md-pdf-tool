@@ -136,7 +136,7 @@ function buildTocHtml(headings) {
   if (!headings.length) return "";
 
   const items = headings
-    .map((h) => `<li class="toc-l${h.level}">${escapeHtml(h.text)}</li>`)
+    .map((h) => `<li class="toc-l${h.level}"><a href="#${h.slug}">${escapeHtml(h.text)}</a></li>`)
     .join("");
 
   return `<section class="toc"><h2>Index</h2><ul>${items}</ul></section>`;
@@ -159,17 +159,27 @@ function buildHtmlTemplate({ title, bodyHtml, tocHtml }) {
       font-family: "Segoe UI", Arial, Helvetica, "Noto Sans", sans-serif;
       color: #132030;
       font-size: 11pt;
-      line-height: 1.48;
+      line-height: 1.44;
       margin: 0;
+      padding: 18px;
+      background: #f6f9fc;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
 
-    .doc { width: 100%; }
+    .doc {
+      width: min(980px, 100%);
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid #d8e3ee;
+      border-radius: 10px;
+      padding: 18px 20px;
+      box-shadow: 0 10px 24px rgba(15, 39, 64, 0.08);
+    }
 
     .toc {
-      margin: 0 0 18px 0;
-      padding: 12px 16px;
+      margin: 0 0 16px 0;
+      padding: 10px 14px;
       background: #edf3f8;
       border: 1px solid #8fa5ba;
       border-radius: 7px;
@@ -178,24 +188,53 @@ function buildHtmlTemplate({ title, bodyHtml, tocHtml }) {
     }
 
     .toc h2 {
-      margin: 0 0 8px 0;
+      margin: 0 0 6px 0;
       font-size: 14pt;
       color: #0f2740;
       border: none;
       padding: 0;
     }
 
-    .toc ul { margin: 0; padding-left: 20px; }
-    .toc li { margin: 3px 0; color: #4f667d; overflow-wrap: anywhere; }
-    .toc-l2 { padding-left: 12px; }
-    .toc-l3 { padding-left: 24px; }
-    .toc-l4 { padding-left: 36px; }
+    .toc ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .toc li {
+      margin: 2px 0;
+      color: #4f667d;
+      overflow-wrap: anywhere;
+      position: relative;
+      padding-left: 14px;
+    }
+
+    .toc li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: #4f667d;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .toc a:hover {
+      text-decoration: underline;
+    }
+
+    .toc-l2 { margin-left: 12px; }
+    .toc-l3 { margin-left: 24px; }
+    .toc-l4 { margin-left: 36px; }
 
     h1, h2, h3, h4, h5, h6 {
       color: #0f2740;
       line-height: 1.24;
-      margin-top: 16px;
-      margin-bottom: 7px;
+      margin-top: 14px;
+      margin-bottom: 6px;
       overflow-wrap: anywhere;
       page-break-after: avoid;
       break-after: avoid;
@@ -207,7 +246,7 @@ function buildHtmlTemplate({ title, bodyHtml, tocHtml }) {
     h4 { font-size: 12pt; }
 
     p {
-      margin: 0 0 9px 0;
+      margin: 0 0 8px 0;
       overflow-wrap: anywhere;
       orphans: 3;
       widows: 3;
