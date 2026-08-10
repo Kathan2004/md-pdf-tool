@@ -392,6 +392,13 @@ button {
   display: none;
 }
 
+.app-footer {
+  text-align: center;
+  color: #4d6373;
+  font-size: 0.88rem;
+  padding: 6px 0 2px;
+}
+
 @media (max-width: 900px) {
   .meta-row,
   .split-view {
