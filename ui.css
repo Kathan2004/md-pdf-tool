@@ -95,6 +95,22 @@ body {
   gap: 12px;
 }
 
+.pipeline {
+  display: grid;
+  gap: 12px;
+}
+
+.pipeline-head h2 {
+  margin: 0;
+  font-size: 1.18rem;
+}
+
+.pipeline-head p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
 .toolbar {
   display: flex;
   justify-content: flex-end;
@@ -194,6 +210,11 @@ button {
   font-weight: 700;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .primary {
   background: linear-gradient(110deg, var(--accent), var(--accent-strong));
   color: #fff;
@@ -232,6 +253,111 @@ button {
 .drop-zone.is-dragover {
   border-color: #0f766e;
   background: #e6f8f2;
+}
+
+.pipeline-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.7fr) minmax(320px, 1.3fr);
+  gap: 12px;
+}
+
+.pipeline-col h3 {
+  margin: 0 0 8px;
+  font-size: 0.98rem;
+}
+
+.file-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #c3d3dd;
+  border-radius: 10px;
+  max-height: 260px;
+  overflow: auto;
+  background: #fcfeff;
+}
+
+.file-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #e3edf3;
+  font-size: 0.88rem;
+}
+
+.file-list li:last-child {
+  border-bottom: none;
+}
+
+.file-list li span {
+  color: #5f7382;
+  white-space: nowrap;
+}
+
+.file-list .empty {
+  color: #5f7382;
+}
+
+.json-preview {
+  margin: 0;
+  border: 1px solid #c3d3dd;
+  border-radius: 10px;
+  background: #f6fafc;
+  padding: 10px;
+  min-height: 260px;
+  max-height: 320px;
+  overflow: auto;
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.excel-preview {
+  border: 1px solid #c3d3dd;
+  border-radius: 10px;
+  background: #fff;
+  padding: 8px;
+  max-height: 320px;
+  overflow: auto;
+}
+
+.pipeline-sheet {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.84rem;
+}
+
+.pipeline-sheet .excel-file {
+  border: 1px solid #9db1c1;
+  background: #e9f0f7;
+  font-weight: 700;
+  padding: 6px;
+}
+
+.pipeline-sheet .excel-text {
+  border: none;
+  padding: 5px 6px;
+  white-space: pre-wrap;
+}
+
+.pipeline-sheet .excel-table-head,
+.pipeline-sheet .excel-table-cell {
+  border: 1px solid #7f96ad;
+  padding: 5px 6px;
+  overflow-wrap: anywhere;
+}
+
+.pipeline-sheet .excel-table-head {
+  background: #d4e0ea;
+}
+
+.pipeline-sheet .excel-spacer {
+  border: none;
+  height: 8px;
+  padding: 0;
 }
 
 .toc-controls {
@@ -409,7 +535,8 @@ button {
 
 @media (max-width: 900px) {
   .meta-row,
-  .split-view {
+  .split-view,
+  .pipeline-grid {
     grid-template-columns: 1fr;
   }
 

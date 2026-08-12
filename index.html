@@ -70,6 +70,46 @@
       </div>
     </section>
 
+    <section class="panel pipeline" aria-label="AI Pipeline Export">
+      <div class="pipeline-head">
+        <h2>Multi Markdown Pipeline</h2>
+        <p>Upload multiple markdown files and export normalized JSON or Excel for AI ingestion.</p>
+      </div>
+
+      <div class="actions-inline">
+        <input id="multiFileInput" class="hidden-file-input" type="file" accept=".md,.markdown,.txt" multiple />
+        <button id="pickMultiBtn" type="button" class="ghost">Choose Multiple .md Files</button>
+        <button id="clearMultiBtn" type="button" class="ghost">Clear Files</button>
+        <button id="downloadJsonBtn" type="button" class="primary">Download JSON</button>
+        <button id="downloadExcelBtn" type="button" class="primary">Download Excel</button>
+      </div>
+
+      <div id="multiDropZone" class="drop-zone" role="button" tabindex="0" aria-label="Drop multiple markdown files here">
+        <p class="drop-title">Drag and drop multiple Markdown files here</p>
+        <p class="drop-subtitle">Or click this area to choose multiple files</p>
+      </div>
+
+      <div class="pipeline-grid">
+        <div class="pipeline-col">
+          <h3>Selected Files</h3>
+          <ul id="multiFileList" class="file-list"></ul>
+        </div>
+        <div class="pipeline-col">
+          <h3>JSON Preview</h3>
+          <pre id="jsonPreview" class="json-preview">[]</pre>
+        </div>
+      </div>
+
+      <div class="pipeline-col">
+        <h3>Excel Preview</h3>
+        <div id="excelPreview" class="excel-preview"></div>
+      </div>
+
+      <div class="convert-row">
+        <span id="pipelineStatus" class="status">No files loaded.</span>
+      </div>
+    </section>
+
     <footer class="app-footer" aria-label="Footer">
       made by kathan somani.
     </footer>
