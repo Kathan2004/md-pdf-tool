@@ -245,7 +245,7 @@ function buildTocHtml(headings) {
   const items = headings
     .map((heading) => {
       const indent = Math.max(0, heading.level - 1) * 14;
-      return `<li style="margin-left:${indent}px"><a href="#${heading.slug}">${heading.text}</a></li>`;
+      return `<li style="margin-left:${indent}px"><a href="#${escapeHtml(heading.slug)}">${escapeHtml(heading.text)}</a></li>`;
     })
     .join("");
   return `<nav id="TOC" role="doc-toc"><h2>Index</h2><ul>${items}</ul></nav>`;
@@ -646,7 +646,7 @@ async function loadMarkdownFile(file) {
   const text = await file.text();
   markdownInput.value = text;
   titleInput.value = file.name.replace(/\.[^.]+$/, "");
-  dropZone.innerHTML = `<p class="drop-title">${file.name}</p><p class="drop-subtitle">Loaded successfully. Drop another file or click to replace.</p>`;
+  dropZone.innerHTML = `<p class="drop-title">${escapeHtml(file.name)}</p><p class="drop-subtitle">Loaded successfully. Drop another file or click to replace.</p>`;
   setStatus(`Loaded ${file.name}`);
   renderPreview();
 }

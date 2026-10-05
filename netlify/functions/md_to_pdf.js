@@ -1,7 +1,35 @@
 const PDFDocument = require("pdfkit");
-const { marked } = require("marked");
+const { marked, Marked } = require("marked");
 const chromium = require("@sparticuz/chromium");
 const puppeteer = require("puppeteer-core");
+
+const MAX_MARKDOWN_CHARS = 500_000;
+const SAFE_LINK = /^(https?:|mailto:|#)/i;
+
+// Untrusted Markdown is rendered in a headless browser, so raw HTML is escaped and
+// only http(s)/mailto/anchor links survive. Images become their alt text: fetching
+// them would let a document make the renderer request internal or file:// URLs.
+const safeMarked = new Marked();
+safeMarked.setOptions({ gfm: true, breaks: false });
+safeMarked.use({
+  renderer: {
+    html(token) {
+      return escapeHtml(token.text || token.raw || "");
+    },
+    link(token) {
+      const text = this.parser.parseInline(token.tokens);
+      if (!SAFE_LINK.test(String(token.href || "").trim())) return text;
+      return `<a href="${escapeHtml(token.href)}">${text}</a>`;
+    },
+    image(token) {
+      return `<span class="img-alt">[image: ${escapeHtml(token.text || "")}]</span>`;
+    },
+  },
+});
+
+function safeFilename(name) {
+  return String(name || "document").replace(/[^A-Za-z0-9._ -]/g, "_").slice(0, 100) || "document";
+}
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -334,10 +362,8 @@ function buildHtmlTemplate({ title, bodyHtml, tocHtml }) {
 }
 
 function buildReadableHtmlFromMarkdown({ markdownText, title, includeToc, tocDepth }) {
-  marked.setOptions({ gfm: true, breaks: false, headerIds: false });
-
   const headings = extractHeadings(markdownText, tocDepth);
-  const parsedHtml = marked.parse(markdownText || "");
+  const parsedHtml = safeMarked.parse(markdownText || "");
   const anchoredHtml = addHeadingAnchorsToHtml(parsedHtml, headings);
   const wrappedHtml = wrapTables(anchoredHtml);
   const tocHtml = includeToc ? buildTocHtml(headings) : "";
@@ -352,13 +378,14 @@ function buildReadableHtmlFromMarkdown({ markdownText, title, includeToc, tocDep
 async function renderWithChromium({ markdownText, title, includeToc, tocDepth }) {
   const html = buildReadableHtmlFromMarkdown({ markdownText, title, includeToc, tocDepth });
 
-  const executablePath = await chromium.executablePath();
+  // CHROMIUM_PATH lets local dev and tests use a system Chromium instead of the Lambda build.
+  const executablePath = process.env.CHROMIUM_PATH || (await chromium.executablePath());
   if (!executablePath) {
     throw new Error("Chromium executable path unavailable");
   }
 
   const browser = await puppeteer.launch({
-    args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
+    args: process.env.CHROMIUM_PATH ? ["--no-sandbox"] : [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
     executablePath,
     defaultViewport: chromium.defaultViewport,
     headless: true,
@@ -366,7 +393,15 @@ async function renderWithChromium({ markdownText, title, includeToc, tocDepth })
 
   try {
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
+    // Defence in depth: no scripts and no network or file access while rendering.
+    await page.setJavaScriptEnabled(false);
+    await page.setRequestInterception(true);
+    page.on("request", (req) => {
+      const url = req.url();
+      if (url.startsWith("data:") || url === "about:blank") req.continue();
+      else req.abort();
+    });
+    await page.setContent(html, { waitUntil: "load" });
 
     return await page.pdf({
       format: "A4",
@@ -833,6 +868,9 @@ exports.handler = async (event) => {
     if (!markdownText.trim()) {
       return jsonResponse(400, { error: "Missing 'markdown' string in request body" });
     }
+    if (markdownText.length > MAX_MARKDOWN_CHARS) {
+      return jsonResponse(413, { error: `Markdown exceeds ${MAX_MARKDOWN_CHARS} characters` });
+    }
 
     if (outputFormat === "html") {
       const html = buildReadableHtmlFromMarkdown({ markdownText, title, includeToc, tocDepth });
@@ -841,7 +879,7 @@ exports.handler = async (event) => {
         headers: {
           ...CORS_HEADERS,
           "Content-Type": "text/html; charset=utf-8",
-          "Content-Disposition": `attachment; filename="${title}.html"`,
+          "Content-Disposition": `attachment; filename="${safeFilename(title)}.html"`,
           "X-Renderer-Version": "netlify-html-v1",
         },
         body: html,
@@ -849,14 +887,13 @@ exports.handler = async (event) => {
     }
 
     let rendererVersion = "netlify-chromium-v3";
-    let fallbackReason = "";
     let pdfBuffer;
 
     try {
       pdfBuffer = await renderWithChromium({ markdownText, title, includeToc, tocDepth });
     } catch (err) {
       rendererVersion = "netlify-pdfkit-v5-fallback";
-      fallbackReason = String(err && err.message ? err.message : err || "unknown render error").slice(0, 180);
+      console.warn("Chromium render failed, using PDFKit:", err && err.message ? err.message : err);
       pdfBuffer = await renderWithPdfKit({ markdownText, title, includeToc, tocDepth });
     }
 
@@ -866,16 +903,17 @@ exports.handler = async (event) => {
       headers: {
         ...CORS_HEADERS,
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${title}.pdf"`,
+        "Content-Disposition": `attachment; filename="${safeFilename(title)}.pdf"`,
         "X-Renderer-Version": rendererVersion,
-        "X-Renderer-Fallback-Reason": fallbackReason || "",
       },
       body: pdfBuffer.toString("base64"),
     };
   } catch (error) {
-    return jsonResponse(500, {
-      error: "Conversion failed",
-      details: error && error.message ? error.message : String(error),
-    });
+    console.error("Conversion failed:", error);
+    return jsonResponse(500, { error: "Conversion failed" });
   }
 };
+
+module.exports.buildReadableHtmlFromMarkdown = buildReadableHtmlFromMarkdown;
+module.exports.safeFilename = safeFilename;
+module.exports.renderWithChromium = renderWithChromium;
