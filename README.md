@@ -70,7 +70,24 @@ This project is configured for Netlify deployment.
 - Publish directory: repository root
 - Functions directory: `netlify/functions`
 
-See `NETLIFY_DEPLOY.md` for deployment steps.
+See [docs/netlify-deploy.md](docs/netlify-deploy.md) for deployment steps and [docs/desktop-watcher.md](docs/desktop-watcher.md) for the offline `mdconverter.py` folder watcher.
+
+## Security
+
+The converter renders untrusted Markdown in headless Chromium, so the function treats every document as hostile:
+
+- **Raw HTML.** Raw HTML in Markdown is escaped, not rendered.
+- **Links and images.** Only `http(s)`, `mailto` and in-page anchors survive as links. Images are replaced by their alt text and are never fetched.
+- **Renderer sandbox.** Chromium runs with JavaScript disabled and request interception that blocks everything except `data:` URLs. A document cannot reach `file://`, cloud metadata or internal hosts.
+- **Input and output.** Input is capped at 500,000 characters, and download filenames are sanitised.
+- **Errors.** Error responses do not leak internal error messages.
+
+## Tests
+
+```bash
+npm test                                                     # unit tests
+CHROMIUM_PATH=/path/to/chrome npm test                       # also renders a real PDF
+```
 
 ## Notes
 
